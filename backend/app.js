@@ -14,10 +14,24 @@ dotenv.config();
 connectDB();
 
 // Initialize Express app
-const app = express();
 
 // Middleware
-app.use(cors()); // Cross-Origin Resource Sharing
+const app = express();
+const allowedOrigins = [process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',') : []];
+
+
+app.use(cors({
+    origin: (origin, callback) => {
+        if (allowedOrigins.includes(origin) || !origin) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE','PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(bodyParser.json()); // Parse incoming JSON requests
 
 // Routes
